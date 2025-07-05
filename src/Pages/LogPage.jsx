@@ -1,18 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 
 function LogsPage() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchEvents = async () => {
+  // ⏳ Async fetch wrapped in useCallback to avoid re-creating function on re-renders
+  const fetchEvents = useCallback(async () => {
     console.log("[Fetch Start] Fetching events...");
     try {
-      const res = await fetch(
-        "https://ca7d-2405-201-3009-5828-4c8d-3594-ab6b-8ea1.ngrok-free.app/events"
-      );
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
+      const response = await fetch("http://localhost:5000/events"); // Replace with your actual backend/ngrok link
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
       console.log("[Fetch Success] Events received:", data);
       setEvents(data.reverse());
       setError(null);
@@ -22,26 +21,28 @@ function LogsPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetchEvents();
-    const interval = setInterval(fetchEvents, 15000);
-    return () => clearInterval(interval);
   }, []);
 
-  const renderEvent = (e) => {
-    const time = new Date(e.timestamp).toUTCString();
-    switch (e.event_type) {
+  // 🔁 Initial fetch and auto-refresh every 15 seconds
+  useEffect(() => {
+    fetchEvents();
+    const intervalId = setInterval(fetchEvents, 15000);
+    return () => clearInterval(intervalId);
+  }, [fetchEvents]);
+
+  // 📦 Event message formatting
+  const renderEvent = (event) => {
+    const time = new Date(event.timestamp).toUTCString();
+    switch (event.event_type) {
       case "push":
-        return `${e.author} pushed to ${e.to_branch} on ${time}`;
+        return `${event.author} pushed to ${event.to_branch} on ${time}`;
       case "pull_request":
-        return `${e.author} submitted a pull request from ${e.from_branch} to ${e.to_branch} on ${time}`;
+        return `${event.author} submitted a pull request from ${event.from_branch} to ${event.to_branch} on ${time}`;
       case "merge":
-        return `${e.author} merged branch ${e.from_branch} to ${e.to_branch} on ${time}`;
+        return `${event.author} merged branch ${event.from_branch} to ${event.to_branch} on ${time}`;
       default:
-        console.warn("Unknown event type:", e);
-        return `[UNKNOWN] Event: ${JSON.stringify(e)}`;
+        console.warn("Unknown event type:", event);
+        return `[UNKNOWN] Event: ${JSON.stringify(event)}`;
     }
   };
 
@@ -56,10 +57,10 @@ function LogsPage() {
         <p style={{ fontStyle: "italic" }}>No events to show yet.</p>
       )}
 
-      {events.map((e, i) => {
-        const line = renderEvent(e);
+      {events.map((event, index) => {
+        const line = renderEvent(event);
         console.log("[Render]", line);
-        return <p key={i}>{line}</p>;
+        return <p key={index}>{line}</p>;
       })}
     </div>
   );
