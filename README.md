@@ -31,11 +31,11 @@ Each event is saved and rendered with timestamps in **IST + AM/PM** and **UTC** 
 
 ### UI Update Page
 
-![UI Update Screenshot](../action_repo/src/ScreenShot/image2.png)
+![UI Update Screenshot](src/ScreenShot/image2.png)
 
 ### Logs Page
 
-![Logs Screenshot](../action_repo/src/ScreenShot/image1.png)
+![Logs Screenshot](src/ScreenShot/image1.png)
 
 > 📁 Place your images inside a folder like `/screenshots` in your project root.
 
