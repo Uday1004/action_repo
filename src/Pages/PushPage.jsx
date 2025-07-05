@@ -6,7 +6,7 @@ function PushPage() {
   return (
     <div style={{ padding: 20 }}>
       <h2>Push Testing Page to GitHub and my name is uday solanki</h2>
-      <h5>Now i am updating my project on github</h5>
+      <h5 style={{color:"blue"}}>Now i am updating my project on github</h5>
       <textarea
         rows={10}
         cols={50}
